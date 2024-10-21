@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Joi = require("joi");
 const { use } = require("../routes/userRoutes");
+const { Op } = require("sequelize");
 
 // Schema for request validation
 const userSchema = Joi.object({
@@ -26,6 +27,24 @@ const createUser = async (req, res) => {
     }
 };
 
+// Like Query
+const findUsersByEmailDomain = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            where: {
+                email: {
+                    [Op.like]: '%@yahoo.com'
+                }
+            }
+        });
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error', error);
+
+    }
+}
+
 // Get users 
 const getUsers = async (req, res) => {
     try {
@@ -40,7 +59,7 @@ const getUsers = async (req, res) => {
             offset: offset,
             limit: limit
         });
-        
+
         const totalUsers = results.count;
         const totalPages = Math.ceil(totalUsers / pageSize);
 
@@ -124,4 +143,4 @@ const deleteUser = async (req, res) => {
     }
 }
 
-module.exports = { createUser, getUsers, getUserById, updateUser, deleteUser };
+module.exports = { createUser, getUsers, getUserById, updateUser, deleteUser, findUsersByEmailDomain };
